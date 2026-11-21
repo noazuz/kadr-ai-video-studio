@@ -1,0 +1,169 @@
+@import './ui-kit/styles.css';
+
+.account-topbar {
+  min-height: 62px;
+  padding: 8px clamp(18px, 3vw, 44px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--k-color-surface);
+  border-bottom: 1px solid var(--border);
+}
+.account-topbar > .icon-button, .mobile-brand { display: none; }
+.topbar-account, .balance-chip, .identity-button, .form-link, .quote-line > span,
+.account-panel h2, .wallet-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-account { margin-left: auto; gap: 14px; min-width: 0; }
+.balance-chip, .identity-button {
+  min-height: 38px;
+  font-weight: 650;
+  border-radius: 6px;
+  padding: 7px 10px;
+}
+.balance-chip {
+  background: var(--k-color-success-soft);
+  color: #35533f;
+  font-size: 12px;
+}
+.balance-chip strong, .wallet-card strong, .quote-line strong { font-variant-numeric: tabular-nums; }
+.balance-chip:hover { background: #dfebdf; }
+.identity-button { max-width: 180px; }
+.identity-button:hover { background: var(--k-color-canvas); }
+.identity-button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.identity-button svg { flex-shrink: 0; }
+.auth-layout, .account-panel {
+  border: 1px solid var(--border);
+  border-radius: var(--k-radius-lg);
+  background: var(--k-color-surface);
+}
+.auth-layout {
+  max-width: 960px;
+  margin: clamp(2px, 3vh, 32px) auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  overflow: hidden;
+}
+.auth-content { padding: clamp(24px, 4vw, 56px); align-self: center; }
+.auth-content h1 { font-size: clamp(24px, 2.5vw, 34px); line-height: 1.18; letter-spacing: -1.2px; margin-bottom: 30px; }
+.auth-help, .auth-message p { color: var(--muted); line-height: 1.7; margin: 0 0 20px; }
+.auth-photo {
+  position: relative;
+  background: linear-gradient(165deg, #12312018, #16281d33), url('/assets/carpathians.jpg') center / cover;
+}
+.auth-photo span {
+  position: absolute;
+  inset: 26px;
+  background:
+    linear-gradient(#fff9, #fff9) top left / 20px 1px,
+    linear-gradient(#fff9, #fff9) top left / 1px 20px,
+    linear-gradient(#fff9, #fff9) top right / 20px 1px,
+    linear-gradient(#fff9, #fff9) top right / 1px 20px,
+    linear-gradient(#fff9, #fff9) bottom left / 20px 1px,
+    linear-gradient(#fff9, #fff9) bottom left / 1px 20px,
+    linear-gradient(#fff9, #fff9) bottom right / 20px 1px,
+    linear-gradient(#fff9, #fff9) bottom right / 1px 20px;
+  background-repeat: no-repeat;
+}
+.account-form, .account-form fieldset, .account-panels, .account-side { display: grid; gap: 18px; }
+.account-form fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
+.account-form .full-input { min-height: 44px; color: var(--ink); border-color: var(--border); }
+.account-form .field-label { margin-bottom: 8px; color: var(--ink); }
+.password-field { position: relative; }
+.password-field input { padding-right: 45px; }
+.password-field button { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; }
+.form-link { color: var(--k-color-action); padding: 3px 0; font-weight: 650; }
+.form-link:hover { text-decoration: underline; }
+.forgot-link { justify-self: end; }
+.auth-switch {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  color: var(--muted);
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.form-alert, .form-success { border-radius: 5px; padding: 10px 12px; line-height: 1.55; }
+.form-alert { color: var(--k-color-danger); background: var(--k-color-danger-soft); }
+.form-success { color: var(--green); background: var(--k-color-success-soft); }
+.account-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, .5fr); gap: 24px; max-width: 1050px; }
+.account-panel { padding: clamp(18px, 3vw, 30px); }
+.account-panel h2 { font-size: 17px; padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+.account-panel h2 svg { color: var(--green); }
+.account-panel .primary-button { justify-self: start; }
+.account-side { align-self: start; }
+.wallet-card { padding: 24px; background: var(--sidebar); color: white; border-radius: var(--k-radius-lg); }
+.wallet-card h2 { color: #deeadc; font-size: 14px; font-weight: 600; }
+.wallet-card strong { display: block; font-size: clamp(28px, 3vw, 40px); line-height: 1.2; margin: 24px 0 4px; overflow-wrap: anywhere; }
+.wallet-card > span { color: #c1d0c3; font-size: 12px; }
+.expense-history { padding: 20px; min-width: 0; }
+.expense-history h2 { margin-bottom: 0; padding-bottom: 14px; }
+.account-history-section h3 { margin: 0; font-size: 14px; }
+.account-history-section + .account-history-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.expense-history p { margin-top: 14px; line-height: 1.55; }
+.expense-history p:not(.form-alert), .expense-total dt, .expense-list time { color: var(--muted); }
+.expense-history .form-link { margin-top: 12px; }
+.expense-list { margin: 0; padding: 0; list-style: none; }
+.expense-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 12px 0;
+}
+.expense-list li + li { border-top: 1px solid var(--border); }
+.expense-list li > div { min-width: 0; overflow-wrap: anywhere; }
+.expense-list span, .expense-list strong { font-weight: 650; }
+.expense-list time { display: block; margin-top: 4px; font-size: 12px; }
+.expense-list strong, .expense-total dd { font-variant-numeric: tabular-nums; }
+.expense-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 14px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.expense-total dd { margin: 0; font-weight: 700; }
+.wallet-top-up p, .wallet-notice { color: #deeadc; font-size: 12px; }
+.wallet-toggle { width: 100%; color: var(--ink); margin-top: 18px; }
+.wallet-top-up, .wallet-notice { margin-top: 14px; }
+.wallet-top-up > p { margin-bottom: 12px; }
+.wallet-top-up .field-label { color: #deeadc; }
+.wallet-top-up .form-alert { color: var(--k-color-danger); }
+.generation-checkout {
+  margin: 4px clamp(16px, 3vw, 25px) 20px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--border);
+  background: var(--k-color-canvas);
+  border-radius: var(--k-radius-md);
+}
+.quote-line { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-weight: 650; }
+.quote-line strong { font-size: 17px; }
+.generation-checkout > p { font-size: 13px; }
+.generation-checkout .primary-button, .generation-checkout .form-link { justify-self: start; }
+@media (max-width: 800px) {
+  .account-topbar { min-height: 60px; padding: 8px 16px; }
+  .account-topbar > .icon-button { display: inline-flex; min-width: 38px; min-height: 38px; }
+  .mobile-brand { display: inline; font-weight: 750; }
+  .topbar-account { gap: 4px; }
+  .identity-button { max-width: 100px; }
+}
+@media (max-width: 660px) {
+  .account-layout, .auth-layout { grid-template-columns: minmax(0, 1fr); }
+  .account-side { grid-row: 1; }
+  .auth-layout { margin-top: 0; }
+  .auth-photo { display: none; }
+  .account-form .full-input { font-size: 16px; }
+}
+@media (max-width: 400px) {
+  .balance-chip > span { display: none; }
+}
