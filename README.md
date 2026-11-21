@@ -1,63 +1,122 @@
-# Kotto Ceramica UK
+# Кадр
 
-Custom UK-market build for Kotto Ceramica.
+«Кадр» — студія генерації відео з Django, SQLite, React і Vite. Replicate генерує кліпи зі звуком, а фоновий воркер збирає їх у фінальний MP4 через FFmpeg.
 
-## Stack
+## Що потрібно
 
-- `Symfony 7.4 LTS` + `API Platform`
-- `Nuxt 3` + `Vue 3`
-- `PostgreSQL`
-- `Redis`
-- `Symfony Messenger`
-- `Typesense`
-- `Docker`
+- Windows і PowerShell.
+- Python 3.13 із командою `py`.
+- Node.js 22.12 або новіший і npm.
+- Акаунт Replicate з API-токеном і доступним балансом для платної генерації.
 
-## Workspace
+FFmpeg встановлюється разом із залежностями Python через `imageio-ffmpeg`.
 
-- `apps/backend` — Symfony API, admin, integrations, documents
-- `apps/storefront` — Nuxt SSR storefront and PWA shell
-- `infra` — local Docker, container recipes, operational defaults
-- `docs` — project plan, architecture, ownership, operating rules
-- `data-mapping` — import specifications, field mapping, migration notes
-- `exports` — generated reports and validation outputs
-- `scripts` — PowerShell helpers for local setup and development
+## 1. Підготуй проєкт
 
-## Active Workspace
+Відкрий PowerShell у корені проєкту, де лежить `manage.py`. Якщо проєкт зберігається в іншій папці, підстав свій шлях.
 
-- Preferred development path: `/home/vitalii/projects/kotto-ceramica-uk` inside `Ubuntu-24.04` WSL
-- Windows copy `C:\Kotto_ceramica\Kotto Ceramica UK` is now a source mirror / backup, not the preferred runtime path
-- Reason: Docker + Symfony + Nuxt run much faster from the Linux filesystem than from a Windows bind-mounted path
+```powershell
+cd C:\Users\user\Desktop\kadr
+py -3.13 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe manage.py migrate
+New-Item -ItemType Directory -Force .\media\voices | Out-Null
+.\.venv\Scripts\python.exe -m piper.download_voices --download-dir .\media\voices uk_UA-mykyta-high uk_UA-tetiana-high
 
-## Local Quick Start
+cd frontend
+npm.cmd ci
+cd ..
+```
 
-1. Open the project from WSL: `\\wsl$\Ubuntu-24.04\home\vitalii\projects\kotto-ceramica-uk`
-2. Run `scripts/wsl-stack.ps1 up`
-3. Open backend at `http://localhost:8080/api/health`
-4. Open storefront at `http://localhost:3000`
-5. Open admin at `http://localhost:8080/admin/login`
+Віртуальне середовище достатньо створити один раз. Після оновлення проєкту повтори встановлення залежностей і `migrate`, щоб підхопити зміни. Міграції застосовуються до локальної бази `db.sqlite3`.
 
-## Legacy Windows Workflow
+## 2. Збережи токен Replicate
 
-If you need the old Windows-rooted flow for reference only:
+Створи або скопіюй токен у налаштуваннях акаунта Replicate. З кореня проєкту запусти:
 
-1. Run `scripts/bootstrap.ps1`
-2. Run `scripts/db-bootstrap.ps1`
-3. Run `scripts/dev.ps1`
-4. Open backend at `http://localhost:8080/api/health`
-5. Open storefront at `http://localhost:3000`
-6. Open admin at `http://localhost:8080/admin/login`
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\set-replicate-token.ps1
+```
 
-## Current Status
+Коли з’явиться приховане поле, встав **повний токен** через меню термінала «Вставити» або `Ctrl+Shift+V`, потім натисни Enter. Якщо вставився лише один символ або збережено неправильний токен, повтори команду. Скрипт замінить попередній запис.
 
-The repository is scaffolded for phased implementation. The first tranche establishes:
+Повідомлення `Replicate token saved for this Windows user` означає, що токен зашифровано й збережено у `%LOCALAPPDATA%\Kadr\replicate-token.dpapi`. Цей файл лежить поза проєктом. Django та воркер читають його автоматично під тим самим користувачем Windows. Чинність токена підтверджується під час виклику Replicate.
 
-- monorepo structure
-- Symfony backend foundation
-- Nuxt storefront foundation
-- local Docker infrastructure
-- project governance and ownership documentation
-- initial catalog and identity domain skeleton
-- PostgreSQL migration baseline
-- demo catalog bootstrap command
-- browser admin login and dashboard foundation
-- premium collections and product pages in the Nuxt storefront
+Для розгортання на сервері передавай токен як секрет середовища `REPLICATE_API_TOKEN`. Ця змінна має пріоритет над зашифрованим локальним файлом. Якщо токен колись потрапив у коміт, відклич його в Replicate та створи новий.
+
+## 3. Запусти три процеси
+
+Відкрий три термінали PowerShell і залиш їх відкритими. У кожному перейди до відповідної папки.
+
+**Термінал 1 — Django**
+
+```powershell
+cd C:\Users\user\Desktop\kadr
+.\.venv\Scripts\python.exe manage.py runserver 127.0.0.1:8000
+```
+
+**Термінал 2 — React**
+
+```powershell
+cd C:\Users\user\Desktop\kadr\frontend
+npm.cmd run dev
+```
+
+**Термінал 3 — воркер генерації**
+
+```powershell
+cd C:\Users\user\Desktop\kadr
+.\.venv\Scripts\python.exe manage.py run_video_worker
+```
+
+Воркер запускається один раз за сеанс і обробляє всі завдання з черги. Він викликає Replicate, завантажує кліпи, зводить їх через FFmpeg і записує готове відео. Коли воркер вимкнений, нові завдання чекають у черзі. Перед зупинкою дочекайся завершення поточної генерації.
+
+| Що відкрити | Адреса |
+| --- | --- |
+| Сайт | [http://127.0.0.1:5173/](http://127.0.0.1:5173/) |
+| Django Admin | [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) |
+
+Якщо Vite вибере інший порт, відкрий адресу з його термінала. Django обслуговує `/api/` і `/admin/`, тому для `http://127.0.0.1:8000/` очікується 404.
+
+## 4. Створи адміністратора й зарахуй баланс
+
+Створи адміністратора один раз із кореня проєкту:
+
+```powershell
+.\.venv\Scripts\python.exe manage.py createsuperuser
+```
+
+1. Зареєструй користувача на сайті та подай заявку через **Акаунт → Поповнити баланс**.
+2. Увійди в Django Admin і відкрий **Заявки на поповнення**. Заявки окремих клієнтів також видно в розділі **Акаунти**.
+3. Після ручного поповнення спільного рахунку Replicate познач потрібну заявку, вибери **Підтвердити після поповнення Replicate та зарахувати баланс** і натисни **Go**. Сума зараховується один раз на внутрішній баланс власника заявки.
+
+Користувач бачить статус заявки й списання за генерації в **Історії балансу** та може скасувати заявку, поки вона очікує підтвердження.
+
+## 5. Згенеруй відео
+
+У студії вибери тривалість від **1 до 60 секунд**, додай тему та сценарій. Перший кліп можна створити з тексту або зі стартового фото JPG, PNG чи WebP до 10 МБ. Перемикач **Перше фото як стартовий кадр** визначає, чи стане перше вибране фото стартовим кадром, чи додасться як вставка. Додаткові фото й відео вставляються у фінальний ролик, а вибрані аудіофайли мікшуються як фон. Можна додати до 12 додаткових матеріалів, до 30 МБ кожен і до 100 МБ разом. На фінальному кроці підтвердь ціну. Ця дія запускає платну генерацію.
+
+Piper синтезує українську озвучку локально. У студії «Остап» відповідає моделі Mykyta, а «Поліна» — Tetiana. Завантажити ці моделі потрібно один раз. Якщо сценарій задовгий навіть з урахуванням темпу, скороти текст або збільш тривалість. Гучність фонових доріжок застосовується до вибраної музики й доданого аудіо. Перемикач субтитрів додає їх безпосередньо в кадр.
+
+Django перевіряє та резервує повну суму з балансу користувача. Воркер генерує через **Pruna P-Video Draft 720p** частини до 10 секунд і збирає один MP4. Сайт показує прогрес, а результат з’являється у **Моїх проєктах** власника. На сайті зберігається одне списання за готове відео, а при помилці резерв повертається.
+
+## Швидка діагностика
+
+| Симптом | Що перевірити |
+| --- | --- |
+| Сайт відкривається, а вхід або акаунт видають помилку | Чи працює Django в терміналі 1 на порту 8000. |
+| Відео довго стоїть у черзі | Чи запущено воркер у терміналі 3. Перевір його повідомлення. |
+| Сервер просить налаштувати токен або Replicate відхиляє запит | Збережи повний чинний токен ще раз. Запускай Django та воркер під тим самим користувачем Windows. Якщо встановлено `REPLICATE_API_TOKEN` у середовищі, перевір його теж. |
+| Бракує коштів | Перевір внутрішній баланс користувача на сайті та окремо баланс спільного рахунку Replicate. |
+| Потрібно відновити пароль локально | Посилання з’являється в терміналі Django. Якщо Vite працює за іншою адресою, задай `FRONTEND_URL` для Django. |
+
+Перевірки для розробки:
+
+```powershell
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py test api
+cd frontend
+npm.cmd run build
+```
+
+Для резервної копії локальних даних збережи `db.sqlite3` і `media/`. Файли відео в `media/generated/` мають залишатися приватними для Django. Докладніший опис фронтенду й API є у [frontend/README.txt](frontend/README.txt).
